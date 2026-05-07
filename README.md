@@ -1,45 +1,70 @@
-# Project Context
+# AI Example Framework
 
-## Tech Stack
+基于 Spring Boot 3 的后端脚手架项目，采用 Maven 多模块结构，内置常用基础配置、统一返回结果、异常处理、登录示例、Redis、MyBatis-Flex 和 Knife4j/OpenAPI 文档。
 
-引入的所有依赖组件都由父级 `pom.xml` 文件管理，遵循POM中约定的版本，如果对技术文档存在疑问，请查阅对应版本的技术文档。
+## 技术栈
 
-### 核心框架
-- **Maven** - 项目构建和依赖管理
-- **Java 17** - 编程语言版本
-- **Spring Boot 3.5.7** - 应用框架
-- **MySQL 8.x** - 数据库
-- **Druid 1.2.27** - 数据库连接池，提供监控和SQL防火墙
-- **MyBatis Plus 3.5.12** - ORM 框架，简化数据库操作
-- **Dynamic DataSource 4.3.1** - 动态多数据源支持
-- **Redis** - 缓存和会话存储
-- **HuTool 5.8.41** - Java工具类库
+依赖版本统一由父级 `pom.xml` 管理。
 
-## Project Conventions
+- Java 17
+- Maven
+- Spring Boot 3.5.14
+- MyBatis-Flex 1.11.6
+- MySQL 8.x
+- Redis
+- Sa-Token 1.45.0
+- HuTool 5.8.44
+- Knife4j 4.5.0
 
-### 代码结构
-项目采用多模块架构设计：
+## 模块结构
+
+```text
+ai-example-framework/
+├── common/          # 公共模块：通用基础类、配置、异常处理、工具类
+├── core/            # 核心业务模块：Service、Mapper、DTO、Domain、VO
+├── server/          # Web 启动模块：启动类、Controller、运行配置
+└── pom.xml          # 父级 Maven 配置
 ```
-base-demo/
-├── common/          # 公共模块 - 通用工具类、配置、异常处理等
-├── core/           # 核心业务模块 - 业务逻辑层、数据访问层
-├── server/         # Web层模块 - 控制器、配置文件、启动类
-└── pom.xml         # 父级Maven配置
+
+当前根包为 `com.example`：
+
+```text
+com.example
+├── ServerApplication
+├── common
+├── core
+└── server
 ```
 
-### 包命名规范
-- **基础包名**: `组织名称.项目名称`
-- **公共模块**: `com.mos.example.common.*`
-- **核心模块**: `com.mos.example.core.*`
-- **Web模块**: `com.mos.example.server.*`
+启动类位于根包 `com.example` 下，Spring Boot 会自动扫描根包及其子包。项目中不需要额外维护 `@ComponentScan`、`@MapperScan` 或 `springdoc.packages-to-scan` 这类固定包名配置。
 
-### 开发规范
-1. **重要**：任何时候都需要保持代码结构清晰
-2. 查看现有的代码中是否存在可复用的代码，在能确保**结构清晰**的情况下，复用现有代码，减少冗余
-3. 参阅现有代码的风格进行参考，并保持一致（接口写法、命名方式、文档注释风格、代码引用等）。
-4. 本次项目不会对外，且本地运行，无需额外的安全校验或者部署
+## 新项目使用
 
-### 已有工具
-- 优先使用 `EasyBaseMapper` 进行数据库批量插入
-- 优先使用 `DynamicDataSource` 的注解进行多数据源权限控制
-- 优先使用 `utils` 目录下的工具类，如果没有再新写
+1. 复制或基于本仓库创建新项目。
+2. 使用 IDE 的重构功能将根包 `com.example` 整体改成目标包名，例如 `com.company.project`。
+3. 修改 `server/src/main/resources/application-dev.yml` 中的 MySQL、Redis、日志路径等本地配置。
+
+默认端口为 `9000`，可在 `server/src/main/resources/application.yml` 中修改。
+
+## 常用地址
+
+- Swagger UI: `http://localhost:9000/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:9000/v3/api-docs`
+
+## 初始化 SQL
+
+初始化脚本位于 `sql/`：
+
+- `base-init.sql`：初始化 `base` 库，内置登录测试账号 `admin / 123456`。
+- `test-init.sql`：初始化 `test` 库，内置用户列表测试数据。
+
+用户分页接口示例：`GET /user/list?pageNo=1&pageSize=10`。
+
+## 开发约定
+
+- Controller 显式返回 `Result<T>`，成功使用 `Result.success(data)`。
+- 业务异常优先使用 `BusinessException`，由全局异常处理器统一转换响应。
+- Mapper 接口继承 MyBatis-Flex `BaseMapper<T>`，并使用 `@Mapper` 注册。
+- 通用能力放在 `common`，可复用业务能力放在 `core`，端侧接口和端侧配置放在 `server`。
+- 如果后续拆分用户前台、管理后台，优先按 Controller 包和接口路径隔离，例如 `server.controller.front`、`server.controller.admin`，Service 和 Mapper 继续在 `core` 复用。
+- 新增代码时保持现有风格，先复用已有工具类和基础封装，再补充新的抽象。
