@@ -44,13 +44,6 @@ com.example
 2. 使用 IDE 的重构功能将根包 `com.example` 整体改成目标包名，例如 `com.company.project`。
 3. 修改 `server/src/main/resources/application-dev.yml` 中的 MySQL、Redis、日志路径等本地配置。
 
-默认端口为 `9000`，可在 `server/src/main/resources/application.yml` 中修改。
-
-## 常用地址
-
-- Swagger UI: `http://localhost:9000/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:9000/v3/api-docs`
-
 ## 初始化 SQL
 
 初始化脚本位于 `sql/`：
